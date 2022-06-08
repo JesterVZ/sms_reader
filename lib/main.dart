@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sms_reader/DI/locator.dart';
 import 'package:sms_reader/pages/main_page.dart';
+import 'package:telephony/telephony.dart';
+
+onBackgroundMessage(SmsMessage message) {
+  print(message.body);
+}
 
 void main() {
   setup();
@@ -13,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Sms reader',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),

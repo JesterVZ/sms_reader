@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sms_reader/pages/settings_page.dart';
 import 'package:sms_reader/pages/sms_page.dart';
+import 'package:telephony/telephony.dart';
 
 import '../elements/bottom_nav/bottom_navigation_custom.dart';
 import '../elements/tab/tab_item.dart';
