@@ -13,6 +13,7 @@ class SmsPage extends StatefulWidget {
 class _SmsPage extends State<SmsPage> {
   final telephony = Telephony.instance;
   String _message = "";
+  bool isStarted = false;
 
   @override
   void initState() {
@@ -23,18 +24,15 @@ class _SmsPage extends State<SmsPage> {
   Future<void> initPlatformState() async {
     final bool? result = await telephony.requestPhoneAndSmsPermissions;
     if (result != null && result) {
-      try {
-        telephony.listenIncomingSms(
-            onNewMessage: onMessage, onBackgroundMessage: onBackgroundMessage);
-      } catch (e) {
-        _message = e.toString();
-      }
+      _ListenSms();
     }
   }
 
-  onMessage(SmsMessage message) async {
+  Future onMessage(SmsMessage message) async {
     setState(() {
-      _message = message.body ?? "Error reading message body.";
+      if (isStarted) {
+        _message = message.body ?? "Error reading message body.";
+      }
     });
   }
 
@@ -44,7 +42,10 @@ class _SmsPage extends State<SmsPage> {
     });
   }
 
-  bool isStarted = false;
+  void _ListenSms() {
+    telephony.listenIncomingSms(
+        onNewMessage: onMessage, onBackgroundMessage: onBackgroundMessage);
+  }
 
   @override
   Widget build(BuildContext context) {

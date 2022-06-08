@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sms_reader/DI/locator.dart';
+import 'package:sms_reader/model/phone_number.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -7,6 +9,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPage extends State<SettingsPage> {
+  PhoneNumber? number;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +56,7 @@ class _SettingsPage extends State<SettingsPage> {
                           Text('Номер телефона'),
                           Container(
                             child: const TextField(
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                   hintText: "+7(000)-000-00-00",
                                   border: OutlineInputBorder(
                                       borderSide:
@@ -72,7 +75,7 @@ class _SettingsPage extends State<SettingsPage> {
                           Text('Номер приема сообщений'),
                           Container(
                             child: const TextField(
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                   hintText: "+7(000)-000-00-00",
                                   border: OutlineInputBorder(
                                       borderSide:
@@ -80,7 +83,15 @@ class _SettingsPage extends State<SettingsPage> {
                             ),
                           ),
                         ]),
-                  )
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Добавить номер"),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -88,5 +99,11 @@ class _SettingsPage extends State<SettingsPage> {
         )
       ],
     ));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    number = locator.get<PhoneNumber>();
   }
 }
