@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sms_reader/DI/locator.dart';
+import 'package:sms_reader/bloc/main_bloc.dart';
 import 'package:telephony/telephony.dart';
 
 import '../main.dart';
@@ -32,6 +34,7 @@ class _SmsPage extends State<SmsPage> {
     setState(() {
       if (isStarted) {
         _message = message.body ?? "Error reading message body.";
+        locator.get<MainBloc>().sendToServer(message);
       }
     });
   }

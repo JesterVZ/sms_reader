@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_reader/DI/locator.dart';
+import 'package:sms_reader/elements/number_elenemt.dart';
 import 'package:sms_reader/model/phone_number.dart';
+import 'package:sms_reader/model/settings_model.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -10,6 +13,36 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPage extends State<SettingsPage> {
   PhoneNumber? number;
+  TextEditingController serverLinkController = TextEditingController();
+  TextEditingController myNumberController = TextEditingController();
+  SharedPreferences? preferences;
+  List<Widget> numbers = [];
+  List<TextEditingController> additionalNumbers = [];
+  List<String> numbersStr = [];
+
+
+  @override
+  void initState() {
+    loadSettings();
+    super.initState();
+  }
+  void loadSettings() async{
+    preferences = await SharedPreferences.getInstance();
+    String? link = preferences!.getString('serverLink');
+    String? myNumber = preferences!.getString('myNumber');
+    if(preferences!.getStringList('numbersList') != null){
+      for(int i = 0; i < preferences!.getStringList('numbersList')!.length; i++){
+        setState(() {
+          TextEditingController textController = TextEditingController();
+          textController.text = preferences!.getStringList('numbersList')![i];
+          additionalNumbers.add(textController);
+          numbers.add(NumberElement(controller: additionalNumbers.last, title: "Номер приема сообщений", hint: "+7(000)-000-00-00"));
+        }); 
+      }
+    }
+    serverLinkController.text = link ?? "";
+    myNumberController.text = myNumber ?? "";
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,8 +69,9 @@ class _SettingsPage extends State<SettingsPage> {
                         children: [
                           Text('Адрес сервера'),
                           Container(
-                            child: const TextField(
-                              decoration: InputDecoration(
+                            child: TextField(
+                              controller: serverLinkController,
+                              decoration: const InputDecoration(
                                   hintText: "http:/",
                                   border: OutlineInputBorder(
                                       borderSide:
@@ -46,52 +80,40 @@ class _SettingsPage extends State<SettingsPage> {
                           ),
                         ]),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(top: 20),
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Номер телефона'),
-                          Container(
-                            child: const TextField(
-                              decoration: InputDecoration(
-                                  hintText: "+7(000)-000-00-00",
-                                  border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.grey))),
-                            ),
-                          ),
-                        ]),
+                  NumberElement(
+                    controller: myNumberController,
+                    hint: "+7(000)-000-00-00",
+                    title: "Мой номер"
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 20),
-                    padding: EdgeInsets.only(left: 20, right: 20),
                     child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Номер приема сообщений'),
-                          Container(
-                            child: const TextField(
-                              decoration: InputDecoration(
-                                  hintText: "+7(000)-000-00-00",
-                                  border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.grey))),
-                            ),
-                          ),
-                        ]),
+                      children: numbers,
+                    ),
                   ),
                   Container(
                     margin: EdgeInsets.only(top: 20),
                     padding: EdgeInsets.only(left: 20, right: 20),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          additionalNumbers.add(TextEditingController());
+                          numbers.add(NumberElement(controller: additionalNumbers.last, title: "Номер приема сообщений", hint: "+7(000)-000-00-00"));
+                        });
+                      },
                       child: Text("Добавить номер"),
                     ),
                   ),
+                  ElevatedButton(onPressed: () async{
+                    locator.get<SettingsModel>().myNumber = myNumberController.text;
+                    locator.get<SettingsModel>().serverLink = serverLinkController.text;
+                    await preferences?.setString('myNumber', myNumberController.text);
+                    await preferences?.setString('serverLink', serverLinkController.text);
+                    for(int i = 0; i < additionalNumbers.length; i++){
+                      numbersStr.add(additionalNumbers[i].text);
+                    }
+                    await preferences?.setStringList('numbersList', numbersStr); 
+
+                  }, child: Text("Сохранить"))
                 ],
               ),
             ),
