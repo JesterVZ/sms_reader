@@ -16,11 +16,12 @@ class HttpClient{
 
   Future<Object>? sendToServer(SmsMessage message) async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String url = locator.get<SettingsModel>().serverLink == null ? '' : locator.get<SettingsModel>().serverLink!;
+    String? serverLink = preferences.getString('serverLink');
+    String url = serverLink ?? '';
     var formData = FormData.fromMap({
-      'my_number': locator.get<SettingsModel>().myNumber,
+      'my_number': preferences.getString('myNumber') ?? '',
       'sender_number': message.address,
-      'card': message.address == '900' ? locator.get<SettingsModel>().sberNumber : message.address == 'tinkoff' ? locator.get<SettingsModel>().tinkoffNumber : '',
+      'card': message.address == '900' ? preferences.getString('sber') : message.address == 'tinkoff' ? preferences.getString('tinkoff') : '',
       'text': message.body
     });
     var responce;
