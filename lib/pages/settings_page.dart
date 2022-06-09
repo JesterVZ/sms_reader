@@ -15,6 +15,8 @@ class _SettingsPage extends State<SettingsPage> {
   PhoneNumber? number;
   TextEditingController serverLinkController = TextEditingController();
   TextEditingController myNumberController = TextEditingController();
+  TextEditingController tinkoffController = TextEditingController();
+  TextEditingController sberController = TextEditingController();
   SharedPreferences? preferences;
   List<Widget> numbers = [];
   List<TextEditingController> additionalNumbers = [];
@@ -26,10 +28,18 @@ class _SettingsPage extends State<SettingsPage> {
     loadSettings();
     super.initState();
   }
+  void updateSettings() {
+    locator.get<SettingsModel>().myNumber = myNumberController.text;
+    locator.get<SettingsModel>().serverLink = serverLinkController.text;
+    locator.get<SettingsModel>().tinkoffNumber = tinkoffController.text;
+    locator.get<SettingsModel>().sberNumber = sberController.text;
+  }
   void loadSettings() async{
     preferences = await SharedPreferences.getInstance();
     String? link = preferences!.getString('serverLink');
     String? myNumber = preferences!.getString('myNumber');
+    String? tinkoff = preferences!.getString('tinkoff');
+    String? sber = preferences!.getString('sber');
     if(preferences!.getStringList('numbersList') != null){
       for(int i = 0; i < preferences!.getStringList('numbersList')!.length; i++){
         setState(() {
@@ -42,6 +52,9 @@ class _SettingsPage extends State<SettingsPage> {
     }
     serverLinkController.text = link ?? "";
     myNumberController.text = myNumber ?? "";
+    tinkoffController.text = tinkoff ?? "";
+    sberController.text = sber ?? "";
+    updateSettings();
   }
   @override
   Widget build(BuildContext context) {
@@ -85,6 +98,16 @@ class _SettingsPage extends State<SettingsPage> {
                     hint: "+7(000)-000-00-00",
                     title: "Мой номер"
                   ),
+                  NumberElement(
+                    controller: tinkoffController,
+                    hint: "0000-0000-0000-0000",
+                    title: "Тинькофф"
+                  ),
+                  NumberElement(
+                    controller: sberController,
+                    hint: "0000-0000-0000-0000",
+                    title: "Сбербанк"
+                  ),
                   Container(
                     child: Column(
                       children: numbers,
@@ -104,10 +127,11 @@ class _SettingsPage extends State<SettingsPage> {
                     ),
                   ),
                   ElevatedButton(onPressed: () async{
-                    locator.get<SettingsModel>().myNumber = myNumberController.text;
-                    locator.get<SettingsModel>().serverLink = serverLinkController.text;
+                    updateSettings();
                     await preferences?.setString('myNumber', myNumberController.text);
                     await preferences?.setString('serverLink', serverLinkController.text);
+                    await preferences?.setString('tinkoff', tinkoffController.text);
+                    await preferences?.setString('sber', sberController.text);
                     for(int i = 0; i < additionalNumbers.length; i++){
                       numbersStr.add(additionalNumbers[i].text);
                     }
