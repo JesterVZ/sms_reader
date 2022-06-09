@@ -70,7 +70,7 @@ class _SettingsPage extends State<SettingsPage> {
                           Text('Адрес сервера'),
                           Container(
                             child: TextField(
-                              controller: serverLinkController,
+                              controller: serverLinkController, //здесь вставляется адрес сервера
                               decoration: const InputDecoration(
                                   hintText: "http:/",
                                   border: OutlineInputBorder(

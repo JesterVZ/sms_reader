@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sms_reader/DI/locator.dart';
 import 'package:sms_reader/bloc/main_bloc.dart';
+import 'package:sms_reader/bloc/main_state.dart';
+import 'package:sms_reader/elements/bloc/bloc_screen.dart';
 import 'package:telephony/telephony.dart';
 
 import '../main.dart';
@@ -16,6 +18,7 @@ class _SmsPage extends State<SmsPage> {
   final telephony = Telephony.instance;
   String _message = "";
   bool isStarted = false;
+  MainBloc mainBloc = locator.get<MainBloc>();
 
   @override
   void initState() {
@@ -52,7 +55,11 @@ class _SmsPage extends State<SmsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocScreen<MainBloc, MainState>(
+      bloc: mainBloc,
+      listener: (context, state) => _listener(context, state),
+      builder: (context, state) {
+        return    Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,5 +91,43 @@ class _SmsPage extends State<SmsPage> {
         ],
       ),
     );
+      }
+    );
+  }
+  _listener(BuildContext context, MainState state) {
+    if(state.loading == true){
+      return;
+    }
+    if(state.error != null){
+      showDialog(
+        context: context, 
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text("Ошибка!"),
+          content: Container(
+          height: 100,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8)
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(state.error.toString())
+                    ],
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: (){
+                  Navigator.pop(context, 'Cancel');
+                }, 
+                child: const Text("Cancel")),
+            ],
+          )
+        ),
+        ));
+    }
   }
 }
