@@ -54,7 +54,7 @@ class _SettingsPage extends State<SettingsPage> {
     myNumberController.text = myNumber ?? "";
     tinkoffController.text = tinkoff ?? "";
     sberController.text = sber ?? "";
-    updateSettings();
+    //updateSettings();
   }
   @override
   Widget build(BuildContext context) {
