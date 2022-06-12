@@ -23,7 +23,7 @@ class MainBloc extends Bloc<Event, MainState>{
     yield state.copyWith(loading: true, error: null);
     try{
       final result = await locator.get<MainRepo>().sendToServer(event.message);
-      yield state.copyWith(error: null, loading: false);
+      yield state.copyWith(error: null, loading: false, logs: result);
     }catch(e){
       yield state.copyWith(error: e.toString(), loading: false);
     }

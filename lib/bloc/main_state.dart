@@ -1,7 +1,10 @@
+import 'package:sms_reader/model/log.dart';
+
 class MainState{
   final bool? loading;
   final Object? error;
-  MainState({this.loading, this.error});
+  final Log? logs;
+  MainState({this.loading, this.error, this.logs});
 
   static initial() => MainState(
     loading: false,
@@ -10,10 +13,12 @@ class MainState{
   MainState copyWith({
     bool? loading,
     Object? error,
+    Log? logs
   }){
     return MainState(
       error: error,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      logs: logs
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:sms_reader/bloc/main_bloc.dart';
 import 'package:sms_reader/http.dart';
+import 'package:sms_reader/model/log.dart';
 import 'package:sms_reader/model/phone_number.dart';
 import 'package:sms_reader/model/settings_model.dart';
 import 'package:sms_reader/repository/main_repo.dart';
@@ -13,4 +14,5 @@ void setup() {
   locator.registerLazySingleton<MainBloc>(() => MainBloc());
   locator.registerLazySingleton<MainRepo>(() => MainRepo());
   locator.registerLazySingleton<SettingsModel>(() => SettingsModel());
+  locator.registerLazySingleton<Log>(() => Log());
 }

@@ -4,6 +4,7 @@ import 'package:sms_reader/DI/locator.dart';
 import 'package:sms_reader/bloc/main_bloc.dart';
 import 'package:sms_reader/bloc/main_state.dart';
 import 'package:sms_reader/elements/bloc/bloc_screen.dart';
+import 'package:sms_reader/model/log.dart';
 import 'package:telephony/telephony.dart';
 
 import '../main.dart';
@@ -19,7 +20,8 @@ class _SmsPage extends State<SmsPage> {
   String _message = "";
   bool isStarted = false;
   MainBloc mainBloc = locator.get<MainBloc>();
-
+  Log log = locator<Log>();
+  
   @override
   void initState() {
     super.initState();
@@ -27,7 +29,13 @@ class _SmsPage extends State<SmsPage> {
   }
 
   Future<void> initPlatformState() async {
+    setState(() {
+      log.messages += "${DateTime.now()} init \n";
+    });
     final bool? result = await telephony.requestPhoneAndSmsPermissions;
+    setState(() {
+      log.messages += "${DateTime.now()} can listen: $result \n";
+    });
     if (result != null && result) {
       _ListenSms();
     }
@@ -37,6 +45,7 @@ class _SmsPage extends State<SmsPage> {
     setState(() {
       if (isStarted) {
         _message = message.body ?? "Error reading message body.";
+        log.messages += ("${DateTime.now()} message: $_message \n");
         locator.get<MainBloc>().sendToServer(message);
       }
     });
@@ -51,6 +60,10 @@ class _SmsPage extends State<SmsPage> {
   void _ListenSms() {
     telephony.listenIncomingSms(
         onNewMessage: onMessage, onBackgroundMessage: onBackgroundMessage);
+    setState(() {
+      log.messages += ("${DateTime.now()} start listening \n");
+    });
+    
   }
 
   @override
@@ -76,10 +89,13 @@ class _SmsPage extends State<SmsPage> {
                   if (isStarted == false) {
                     setState(() {
                       isStarted = true;
+                      log.messages += ("${DateTime.now()} isStarted: $isStarted \n");
+
                     });
                   } else {
                     setState(() {
                       isStarted = false;
+                      log.messages += ("${DateTime.now()} isStarted: $isStarted \n");
                     });
                   }
                 },
@@ -87,7 +103,19 @@ class _SmsPage extends State<SmsPage> {
               ),
             ),
           ),
-          Text("Входящее смс: $_message")
+          Text("Входящее смс: $_message"),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey)
+            ),
+            width: MediaQuery.of(context).size.width,
+            height: 200,
+            child: Scrollbar(
+              child: SingleChildScrollView(
+                child: SelectableText(log.messages),
+              )
+            ),
+          )
         ],
       ),
     );
@@ -96,9 +124,16 @@ class _SmsPage extends State<SmsPage> {
   }
   _listener(BuildContext context, MainState state) {
     if(state.loading == true){
+      setState(() {
+        log.messages += ("${DateTime.now()} loading: ${state.loading} \n");
+      });
       return;
     }
+    
     if(state.error != null){
+      setState(() {
+        log.messages += ("${DateTime.now()} error: ${state.error} \n");
+      });
       showDialog(
         context: context, 
         builder: (BuildContext context) => AlertDialog(

@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_reader/DI/locator.dart';
+import 'package:sms_reader/model/log.dart';
 import 'package:sms_reader/model/settings_model.dart';
 import 'package:telephony/telephony.dart';
 import 'dart:convert';
@@ -15,9 +17,14 @@ class HttpClient{
   }
 
   Future<Object>? sendToServer(SmsMessage message) async{
+    Log log = locator<Log>();
+    log.messages += ("${DateTime.now()} message address: ${message.address} \n");
+    log.messages += ("${DateTime.now()} message body: ${message.body} \n");
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? serverLink = preferences.getString('serverLink');
+    
     String url = serverLink ?? '';
+    log.messages += ("${DateTime.now()} serverLink: $url \n");
     var formData = FormData.fromMap({
       'my_number': preferences.getString('myNumber') ?? '',
       'sender_number': message.address,
@@ -27,14 +34,16 @@ class HttpClient{
     var responce;
     for(int i = 0; i < preferences.getStringList('numbersList')!.length; i++){
       if(message.address == preferences.getStringList('numbersList')![i]){
+        log.messages += ("${DateTime.now()} number: ${preferences.getStringList('numbersList')![i]} \n");
         responce = await _apiClient.post(url, data: formData);
         break;
       }
     }
-    
+    log.messages += ("${DateTime.now()} responce: $responce \n");
     if(responce != null && responce.statusCode == 200){
-      return responce.data;
+      return log;
+    } else {
+      throw Exception(responce);
     }
-    return '';
   }
 }
