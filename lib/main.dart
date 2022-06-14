@@ -15,12 +15,16 @@ onBackgroundMessage(SmsMessage message) async {
 
 void createIsolate(SmsMessage message) async {
   ReceivePort receivePort = ReceivePort();
+  receivePort.asBroadcastStream();
   SharedPreferences preferences = await SharedPreferences.getInstance();
   Isolate newIsolate;
   newIsolate = await Isolate.spawn(
       sendToServerOnBack, [receivePort.sendPort, message, preferences]);
-  receivePort.close();
-  newIsolate.kill();
+  receivePort.listen((message) {
+    receivePort.close();
+    newIsolate.kill();
+  });
+  
 }
 
 void sendToServerOnBack(List<Object> args) async {

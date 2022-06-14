@@ -13,7 +13,7 @@ class MainPage extends StatefulWidget {
   State<StatefulWidget> createState() => _MainPage();
 }
 
-class _MainPage extends State<MainPage> {
+class _MainPage extends State<MainPage> with WidgetsBindingObserver{
   var _currentTab = TabItem.main;
   final _navKeys = {
     TabItem.main: GlobalKey<NavigatorState>(),
@@ -31,6 +31,20 @@ class _MainPage extends State<MainPage> {
       rootPage: SettingsPage(),
     ));
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    print(state);
+    
   }
 
   void _selectTab(TabItem tabItem) {

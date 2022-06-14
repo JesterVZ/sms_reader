@@ -128,6 +128,7 @@ class _SettingsPage extends State<SettingsPage> {
                   ),
                   ElevatedButton(onPressed: () async{
                     updateSettings();
+                    
                     await preferences?.setString('myNumber', myNumberController.text);
                     await preferences?.setString('serverLink', serverLinkController.text);
                     await preferences?.setString('tinkoff', tinkoffController.text);

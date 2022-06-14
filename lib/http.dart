@@ -55,8 +55,8 @@ class HttpClient {
     }
   }
 
-  Future<Object> sendToServerBack(
-      SmsMessage message, SharedPreferences preferences) async {
+  Future<Object?> sendToServerBack(
+    SmsMessage message, SharedPreferences preferences) async {
     String? serverLink = preferences.getString('serverLink');
     String url = serverLink ?? '';
     var formData = FormData.fromMap({
@@ -76,10 +76,8 @@ class HttpClient {
         break;
       }
     }
-    if (responce != null && responce.statusCode == 200) {
-      return responce.data;
-    } else {
-      throw Exception(responce);
+    if (responce.statusCode == 200) {
+      return responce;
     }
   }
 }
