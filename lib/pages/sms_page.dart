@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,25 +36,28 @@ class _SmsPage extends State<SmsPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    print("23423234234234");
     super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    //super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
-      //Log.setPrefs('$state', preferences!);
+      Log.setPrefs('${DateTime.now()} $state', preferences!);
     }
     if (state == AppLifecycleState.resumed) {
       setState(() {
-        //Log.setPrefs('$state', preferences!);
+        Log.setPrefs('${DateTime.now()}$state', preferences!);
         log.messages += preferences!.getString('background_logs')!;
         Log.clear(preferences!);
       });
     }
     print(state);
   }
+
 
   Future<void> initPlatformState() async {
     setState(() {
@@ -63,7 +68,7 @@ class _SmsPage extends State<SmsPage> with WidgetsBindingObserver {
       log.messages += "${DateTime.now()} can listen: $result \n";
     });
     if (result != null && result) {
-      _ListenSms();
+      ListenSms();
     }
   }
 
@@ -83,12 +88,12 @@ class _SmsPage extends State<SmsPage> with WidgetsBindingObserver {
     });
   }
 
-  void _ListenSms() {
+  void ListenSms() async {
     telephony.listenIncomingSms(
-        onNewMessage: onMessage, onBackgroundMessage: onBackgroundMessage);
+        onNewMessage: onMessage, onBackgroundMessage: onBackgroundMessage, listenInBackground: true);
     setState(() {
-      log.messages += ("${DateTime.now()} start listening \n");
-    });
+        log.messages += ("${DateTime.now()} start listening \n");
+      });
   }
 
   @override

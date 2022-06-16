@@ -2,7 +2,6 @@ import 'dart:isolate';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_reader/DI/locator.dart';
 import 'package:sms_reader/bloc/main_bloc.dart';
@@ -12,10 +11,7 @@ import 'package:sms_reader/pages/main_page.dart';
 import 'package:telephony/telephony.dart';
 
 onBackgroundMessage(SmsMessage message) async {
-  bool canVibrate = await Vibrate.canVibrate;
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  Log.setPrefs("SmsMessage: ${message.body}", preferences);
-  //preferences.setString('background_logs', "SmsMessage: $message \n");
   Dio dio = Dio(BaseOptions(
     baseUrl: '',
     connectTimeout: 30000,
@@ -23,7 +19,6 @@ onBackgroundMessage(SmsMessage message) async {
   ));
   String? serverLink = preferences.getString('serverLink');
   String url = serverLink ?? '';
-  Log.setPrefs("serverLink: $serverLink ", preferences);
   var formData = FormData.fromMap({
     'my_number': preferences.getString('myNumber') ?? '',
     'sender_number': message.address,
@@ -35,12 +30,9 @@ onBackgroundMessage(SmsMessage message) async {
     'text': message.body
   });
   var responce;
-  Log.setPrefs("ready to request ", preferences);
   for (int i = 0; i < preferences.getStringList('numbersList')!.length; i++) {
     if (message.address == preferences.getStringList('numbersList')![i]) {
       responce = await dio.post(url, data: formData);
-      Log.setPrefs("responce: ${responce.data}", preferences);
-      if (canVibrate) Vibrate.vibrate;
       break;
     }
   }
